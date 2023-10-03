@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Feed with Zoom</title>
+    <style>
+        #videoContainer {
+            position: relative;
+            width: 640px;
+            height: 360px;
+        }
+        .zoomArea {
+            position: absolute;
+            border: 2px solid red;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="videoPlayer" width="100%" height="100%" controls>
+            <source src="TEst01_BS_AcidMachine001.mp4" type="video/mp4">
+        </video>
+        <div id="area1" class="zoomArea" style="left: 50px; top: 50px; width: 200px; height: 150px;"></div>
+        <div id="area2" class="zoomArea" style="left: 300px; top: 200px; width: 150px; height: 100px;"></div>
+    </div>
+
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        const zoomAreas = document.getElementsByClassName('zoomArea');
+
+        // Event listeners for zoom areas
+        Array.from(zoomAreas).forEach(area => {
+            area.addEventListener('click', () => {
+                const { left, top, width, height } = area.getBoundingClientRect();
+                videoPlayer.style.objectFit = 'unset';
+                videoPlayer.style.position = 'absolute';
+                videoPlayer.style.left = `-${left}px`;
+                videoPlayer.style.top = `-${top}px`;
+                videoPlayer.style.width = `${width}px`;
+                videoPlayer.style.height = `${height}px`;
+            });
+        });
+    </script>
+</body>
+</html>

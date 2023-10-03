@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Feed with Area Zoom</title>
+    <style>
+        #videoContainer {
+            position: relative;
+            width: 640px;
+            height: 360px;
+            overflow: hidden;
+        }
+        .zoomArea {
+            position: absolute;
+            border: 2px solid red;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="videoPlayer" width="100%" height="100%" controls>
+            <source src="path/to/your/video.mp4" type="video/mp4">
+        </video>
+        <div id="area1" class="zoomArea" style="left: 50px; top: 50px; width: 200px; height: 150px;"></div>
+        <div id="area2" class="zoomArea" style="left: 300px; top: 200px; width: 150px; height: 100px;"></div>
+    </div>
+
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        const zoomAreas = document.getElementsByClassName('zoomArea');
+
+        // Event listeners for zoom areas
+        Array.from(zoomAreas).forEach(area => {
+            area.addEventListener('click', () => {
+                const { left, top, width, height } = area.getBoundingClientRect();
+                const containerWidth = videoPlayer.offsetWidth;
+                const containerHeight = videoPlayer.offsetHeight;
+
+                const scaleX = containerWidth / width;
+                const scaleY = containerHeight / height;
+
+                const translateX = (containerWidth / 2) - ((left + width / 2) * scaleX);
+                const translateY = (containerHeight / 2) - ((top + height / 2) * scaleY);
+
+                videoPlayer.style.transformOrigin = 'top left';
+                videoPlayer.style.transform = `matrix(${scaleX}, 0, 0, ${scaleY}, ${translateX}, ${translateY})`;
+            });
+        });
+
+        // Reset video when clicking outside zoom areas
+        videoPlayer.addEventListener('click', () => {
+            videoPlayer.style.transformOrigin = '';
+            videoPlayer.style.transform = '';
+        });
+    </script>
+</body>
+</html>

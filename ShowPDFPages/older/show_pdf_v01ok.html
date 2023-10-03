@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Viewer</title>
+</head>
+<body>
+    <div id="pdf-container"></div>
+    <script >
+        pdfjs_path='build/';
+    </script>
+    <!--<script src="path-to-pdf.js"></script> -->
+    <script src="build/pdf.js"></script>
+    
+    <script>
+        // Get the 'pages' parameter from the URL
+        const queryParams = new URLSearchParams(window.location.search);
+        const pagesParam = queryParams.get('pages');
+        const pdfFilePath= 'usborne guide__COMPUTERgames__archive.org.pdf'  ;//'usborne.com_BASICpractice_your.pdf';
+
+        // Check if 'pages' parameter exists
+        if (pagesParam) {
+            // Split the 'pages' parameter into an array of page numbers
+            const pageNumbers = pagesParam.split(',').map(Number);
+
+            // Load the PDF and display specific pages
+            const pdfContainer = document.getElementById('pdf-container');
+            const pdfURL = pdfFilePath ; // Replace with the actual path to your PDF file
+
+            // Initialize PDF.js
+            const pdfjsLib = window['pdfjs-dist/build/pdf'];
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'build/pdf.worker.js'; // Replace with the actual path to pdf.worker.js
+
+            pdfjsLib.getDocument(pdfURL).promise.then(pdf => {
+                // Loop through the requested pages and display them
+                pageNumbers.forEach(pageNumber => {
+                    pdf.getPage(pageNumber).then(page => {
+                        const scale = 1.5; // Adjust the scale as needed
+                        const viewport = page.getViewport({ scale });
+
+                        // Create a canvas for each page
+                        const canvas = document.createElement('canvas');
+                        canvas.style.display = 'block';
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        pdfContainer.appendChild(canvas);
+
+                        // Render the page to the canvas
+                        page.render({ canvasContext: context, viewport });
+                    });
+                });
+            }).catch(error => {
+                console.error('Error loading PDF:', error);
+            });
+        } else {
+            console.error('No "pages" parameter found in the URL.');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Viewer ?pages=1,3,5</title>
+</head>
+<body>
+   
+    <div>
+        <label for="scale-input">Scale Factor:</label>
+        <input type="number" id="scale-input" value="1" step="1">
+        <button id="apply-scale">Apply</button>
+    </div>
+    <div id="pdf-container"></div>
+
+    <!--   CDN  https://cdnjs.com/libraries/pdf.js  <script src="build/pdf.js"></script>   <script src="path-to-pdf.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.min.js"></script>
+    
+    <script>
+        // Get the 'pages' parameter from the URL
+        const queryParams = new URLSearchParams(window.location.search);
+        const pagesParam = queryParams.get('pages');
+        const pdfFilePath= 'usborne.com_BASICpractice_your.pdf'  ;//'usborne.com_BASICpractice_your.pdf';
+
+            // Load the PDF and display specific pages
+            const pdfContainer = document.getElementById('pdf-container');
+            const pdfURL = pdfFilePath ; // Replace with the actual path to your PDF file
+            if (pagesParam) pageNumbers = pagesParam.split(',').map(Number);
+
+        // Check if 'pages' parameter exists
+        if (pagesParam) {
+            // Split the 'pages' parameter into an array of page numbers
+            pageNumbers = pagesParam.split(',').map(Number);
+
+
+
+            // Initialize PDF.js
+            const pdfjsLib = window['pdfjs-dist/build/pdf'];
+            //pdfjsLib.GlobalWorkerOptions.workerSrc = 'build/pdf.worker.js'; // Replace with the actual path to pdf.worker.js
+			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.worker.min.js'; // Replace with the actual path to pdf.worker.js
+            pdfjsLib.getDocument(pdfURL).promise.then(pdf => {
+                // Loop through the requested pages and display them
+                pageNumbers.forEach(pageNumber => {
+                    pdf.getPage(pageNumber).then(page => {
+                        const scale = 3; // Adjust the scale as needed
+                        const viewport = page.getViewport({ scale });
+
+                        // Create a canvas for each page
+                        const canvas = document.createElement('canvas');
+                        canvas.style.display = 'block';
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        pdfContainer.appendChild(canvas);
+
+                        // Render the page to the canvas
+                        page.render({ canvasContext: context, viewport });
+                    });
+                });
+            }).catch(error => {
+                console.error('Error loading PDF:', error);
+            });
+        } else {
+            console.error('No "pages" parameter found in the URL.');
+        }
+
+
+
+
+        const scaleInput = document.getElementById('scale-input');
+        const applyScaleButton = document.getElementById('apply-scale');
+
+        applyScaleButton.addEventListener('click', () => {
+            const newScale = parseFloat(scaleInput.value);
+            if (!isNaN(newScale) && newScale > 0) {
+                // Clear the existing canvas elements
+              //  pdfContainer = document.getElementById('pdf-container');
+                pdfContainer.innerHTML = '';
+
+                // Reload and display the PDF with the new scale
+                pdfjsLib.getDocument(pdfURL).promise.then(pdf => {
+                    pageNumbers.forEach(pageNumber => {
+                        pdf.getPage(pageNumber).then(page => {
+                            const viewport = page.getViewport({ scale: newScale });
+
+                            const canvas = document.createElement('canvas');
+                            canvas.style.display = 'block';
+                            const context = canvas.getContext('2d');
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            pdfContainer.appendChild(canvas);
+
+                            page.render({ canvasContext: context, viewport });
+                        });
+                    });
+                }).catch(error => {
+                    console.error('Error loading PDF:', error);
+                });
+            } else {
+                console.error('Invalid scale factor:', scaleInput.value);
+            }
+        });
+
+
+    </script>
+</body>
+</html>

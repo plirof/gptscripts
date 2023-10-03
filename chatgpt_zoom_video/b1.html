@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #image-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  
+    #main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      cursor: zoom-in;
+    }
+  
+    #zoomed-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      cursor: zoom-out;
+    }
+  
+    .zoom-area {
+      position: absolute;
+      border: 2px solid red;
+      cursor: zoom-in;
+    }
+  
+    #zoom-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px;
+      background-color: #333;
+      color: #fff;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="image-container">
+    <img id="main-image" src="" alt="Server Image" />
+    <img id="zoomed-image" src="" alt="Zoomed Image" />
+    <div class="zoom-area" style="top: 20px; left: 20px; width: 200px; height: 200px;"></div>
+    <div class="zoom-area" style="top: 20px; right: 20px; width: 200px; height: 200px;"></div>
+    <div class="zoom-area" style="bottom: 20px; left: 20px; width: 200px; height: 200px;"></div>
+    <div class="zoom-area" style="bottom: 20px; right: 20px; width: 200px; height: 200px;"></div>
+    <div class="zoom-area" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px;"></div>
+  </div>
+  <button id="zoom-button">Restore</button>
+
+  <script>
+    const mainImage = document.getElementById('main-image');
+    const zoomedImage = document.getElementById('zoomed-image');
+    const zoomButton = document.getElementById('zoom-button');
+    const zoomAreas = document.getElementsByClassName('zoom-area');
+
+    let zoomedArea = null;
+
+    // Function to update the image source
+    function updateImage() {
+      // Replace "image-url" with the actual URL of your server image
+      mainImage.src = "stones-167089_1280.jpg";
+    }
+
+    // Function to zoom in on a specified area
+    function zoomIn(area) {
+      const { top, left, width, height } = area.getBoundingClientRect();
+      zoomedArea = area;
+      zoomedImage.src = mainImage.src;
+      zoomedImage.style.top = `${-top}px`;
+      zoomedImage.style.left = `${-left}px`;
+      zoomedImage.style.width = `${mainImage.width}px`;
+      zoomedImage.style.height = `${mainImage.height}px`;
+      zoomedImage.style.display = 'block';
+      zoomButton.style.display = 'block';
+    }
+
+    // Function to restore the original image size
+    function restoreImage() {
+      zoomedArea = null;
+      zoomedImage.style.display = 'none';
+      zoomButton.style.display = 'none';
+    }
+
+    // Add click event listeners to the zoom areas
+    for (let i = 0; i < zoomAreas.length; i++) {
+      zoomAreas[i].addEventListener('click', function() {
+        zoomIn(this);
+      });
+    }
+
+    // Add click event listener to the zoom button
+    zoomButton.addEventListener('click', function() {
+      restoreImage();
+    });
+
+    // Update the image every 10 seconds
+    setInterval(updateImage, 10000);
+  </script>
+</body>
+</html>

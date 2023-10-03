@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Zoom with Areas</title>
+  <style>
+    #zoomedImageContainer {
+      position: relative;
+    }
+
+    #zoomedImage {
+      display: none;
+      position: absolute;
+      z-index: 999;
+      cursor: zoom-out;
+    }
+
+    .area {
+      position: absolute;
+      background-color: rgba(255, 0, 0, 0.3);
+      cursor: pointer;
+    }
+  </style>
+
+</head>
+<body>
+  <h1>Image Zoom with Areas</h1>
+  <div id="zoomedImageContainer">
+    <img id="originalImage" src="path/to/your/image.jpg" alt="Your Image" usemap="#imageMap">
+    <div id="zoomedImage" onclick="hideZoomedArea()"></div>
+    <div class="area" style="left: 50px; top: 50px; width: 100px; height: 100px;" onclick="zoomArea(50, 50, 100, 100)"></div>
+    <div class="area" style="left: 200px; top: 50px; width: 100px; height: 100px;" onclick="zoomArea(200, 50, 100, 100)"></div>
+    <div class="area" style="left: 50px; top: 200px; width: 100px; height: 100px;" onclick="zoomArea(50, 200, 100, 100)"></div>
+    <div class="area" style="left: 200px; top: 200px; width: 100px; height: 100px;" onclick="zoomArea(200, 200, 100, 100)"></div>
+    <div class="area" style="left: 350px; top: 150px; width: 100px; height: 100px;" onclick="zoomArea(350, 150, 100, 100)"></div>
+  </div>
+
+  <script>
+    var zoomLevel = 3; // Set the desired zoom level here
+    var imageSrc = "path/to/your/image.jpg"; // Set the image source URL here
+    var updateInterval = 3000; // Update interval in milliseconds (10 seconds)
+    var zoomedArea = null; // Track the currently zoomed area
+
+    function zoomArea(x, y, width, height) {
+      var zoomedImage = document.getElementById("zoomedImage");
+      var zoomedImageContainer = document.getElementById("zoomedImageContainer");
+      var originalImage = document.getElementById("originalImage");
+
+      if (zoomedArea) {
+        // If there is a zoomed area, clear it first
+       // hideZoomedArea();
+      }
+
+      zoomedImage.innerHTML = "";
+
+      var zoomedWidth = width * zoomLevel;
+      var zoomedHeight = height * zoomLevel;
+      var zoomedX = x - (zoomedWidth - width) / 2; // Center the zoomed area horizontally
+      var zoomedY = y - (zoomedHeight - height) / 2; // Center the zoomed area vertically
+
+      zoomedImage.style.width = zoomedWidth + "px";
+      zoomedImage.style.height = zoomedHeight + "px";
+      zoomedImage.style.left = zoomedX + "px";
+      zoomedImage.style.top = zoomedY + "px";
+
+      var canvas = document.createElement("canvas");
+      canvas.width = zoomedWidth;
+      canvas.height = zoomedHeight;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(originalImage, zoomedX, zoomedY, width, height, 0, 0, zoomedWidth, zoomedHeight);
+
+      zoomedImage.appendChild(canvas);
+      zoomedImage.style.display = "block";
+
+      zoomedArea = { x: x, y: y, width: width, height: height }; // Update the currently zoomed area
+
+      //zoomedImageContainer.addEventListener("scroll", hideZoomedAreaOnScroll);
+      saveZoomedArea();
+    }
+    
+    function hideZoomedArea() {
+      var zoomedImage = document.getElementById("zoomedImage");
+      var zoomedImageContainer = document.getElementById("zoomedImageContainer");
+      
+      zoomedImage.innerHTML = "";
+      zoomedImage.style.display = "none";
+      zoomedArea = null; // Clear the currently zoomed area
+
+      zoomedImageContainer.removeEventListener("scroll", hideZoomedAreaOnScroll);
+    }
+
+    function hideZoomedAreaOnScroll() {
+     // hideZoomedArea();
+    }
+
+    function saveZoomedArea() {
+      localStorage.setItem("zoomedArea", JSON.stringify(zoomedArea));
+    }
+
+    function loadZoomedArea() {
+      console.log("loafZoomedArea()");
+      var savedZoomedArea = localStorage.getItem("zoomedArea");
+      if (savedZoomedArea) {
+        zoomedArea = JSON.parse(savedZoomedArea);
+        zoomArea(zoomedArea.x, zoomedArea.y, zoomedArea.width, zoomedArea.height);
+        console.log("105x="+zoomedArea.x+"y="+zoomedArea.y+"w="+zoomedArea.width+"h="+zoomedArea.height);
+      }else {
+
+        zoomedArea = JSON.parse(savedZoomedArea);
+        console.log("109x="+zoomedArea.x+"y="+zoomedArea.y+"w="+zoomedArea.width+"h="+zoomedArea.height);
+        }
+    }
+
+    setInterval(function() {
+      var originalImage = document.getElementById("originalImage");
+      originalImage.src = imageSrc + "?time=" + Date.now(); // Add a timestamp to the image URL to force reloading
+      console.log("interval"+ Date.now());
+
+      
+      //if (!zoomedArea) {
+        // If there is no zoomed area, check if it is stored in localStorage
+        loadZoomedArea();
+      //}
+    }, updateInterval);
+
+    window.addEventListener("beforeunload", saveZoomedArea);
+    window.addEventListener("load", loadZoomedArea);
+  </script>
+
+  <script>
+    //init
+     // localStorage.removeItem("zoomedArea");
+
+  </script>
+</body>
+</html>
