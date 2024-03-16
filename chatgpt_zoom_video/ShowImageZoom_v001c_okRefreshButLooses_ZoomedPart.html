@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Zoom with Areas</title>
+  <style>
+    #zoomedImage {
+      display: none;
+      position: absolute;
+      z-index: 999;
+      cursor: pointer;
+    }
+
+    .area {
+      position: absolute;
+      background-color: rgba(255, 0, 0, 0.3);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Image Zoom with Areas</h1>
+  <div style="position: relative;">
+    <img id="mainImage" src="path/to/your/image.jpg" alt="Your Image" usemap="#imageMap">
+    <div id="zoomedImage" onclick="hideZoomedArea()"></div>
+    <div class="area" style="left: 50px; top: 50px; width: 100px; height: 100px;" onclick="zoomArea(50, 50, 100, 100)"></div>
+    <div class="area" style="left: 200px; top: 50px; width: 100px; height: 100px;" onclick="zoomArea(200, 50, 100, 100)"></div>
+    <div class="area" style="left: 50px; top: 200px; width: 100px; height: 100px;" onclick="zoomArea(50, 200, 100, 100)"></div>
+    <div class="area" style="left: 200px; top: 200px; width: 100px; height: 100px;" onclick="zoomArea(200, 200, 100, 100)"></div>
+    <div class="area" style="left: 350px; top: 150px; width: 100px; height: 100px;" onclick="zoomArea(350, 150, 100, 100)"></div>
+  </div>
+
+  <script>
+    var zoomLevel = 8; // Set the desired zoom level here
+    var zoomedArea = null;
+
+    function zoomArea(x, y, width, height) {
+      var zoomedImage = document.getElementById("zoomedImage");
+      var mainImage = document.getElementById("mainImage");
+
+      zoomedImage.innerHTML = "";
+      zoomedImage.style.display = "block";
+      zoomedImage.style.cursor = "zoom-out";
+
+      var zoomedWidth = width * zoomLevel;
+      var zoomedHeight = height * zoomLevel;
+
+      zoomedImage.style.width = zoomedWidth + "px";
+      zoomedImage.style.height = zoomedHeight + "px";
+      zoomedImage.style.left = x + "px";
+      zoomedImage.style.top = y + "px";
+
+      var canvas = document.createElement("canvas");
+      canvas.width = zoomedWidth;
+      canvas.height = zoomedHeight;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(mainImage, x, y, width, height, 0, 0, zoomedWidth, zoomedHeight);
+
+      zoomedImage.appendChild(canvas);
+
+      // Save the current zoomed area
+      zoomedArea = { x, y, width, height };
+    }
+    
+    function hideZoomedArea() {
+      var zoomedImage = document.getElementById("zoomedImage");
+      zoomedImage.innerHTML = "";
+      zoomedImage.style.display = "none";
+      zoomedImage.style.cursor = "pointer";
+    }
+
+    // Reload the image every 30 seconds with a timestamp to avoid caching
+    setInterval(function() {
+      var mainImage = document.getElementById("mainImage");
+      console.log("reload image rnd="+Math.random());
+      // Append a timestamp to the image URL to force reload
+      mainImage.src = "path/to/your/image.jpg?" + new Date().getTime();
+
+      // Zoom in on the previous area if available
+      if (zoomedArea) {
+        zoomArea(zoomedArea.x, zoomedArea.y, zoomedArea.width, zoomedArea.height);
+      }
+    }, 3000);
+  </script>
+</body>
+</html>

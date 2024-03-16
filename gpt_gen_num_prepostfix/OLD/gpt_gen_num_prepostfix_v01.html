@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Sequence Generator</title>
+</head>
+<body>
+
+<label for="prefix">Prefix:</label>
+<input type="text" id="prefix"><br><br>
+
+<label for="postfix">Postfix:</label>
+<input type="text" id="postfix"><br><br>
+
+<label for="num_lower">Number Lower:</label>
+<input type="number" id="num_lower" value=1><br><br>
+
+<label for="num_higher">Number Higher:</label>
+<input type="number" id="num_higher" value=20 ><br><br>
+
+<input type="checkbox" id="zeroPadding">
+<label for="zeroPadding">Add zero padding</label><br><br>
+
+<button onclick="generateSequence()">Generate Sequence</button><br><br>
+
+<textarea id="result" rows="10" cols="30"></textarea>
+
+<script>
+function generateSequence() {
+  var prefix = document.getElementById("prefix").value;
+  var postfix = document.getElementById("postfix").value;
+  var num_lower = parseInt(document.getElementById("num_lower").value);
+  var num_higher = parseInt(document.getElementById("num_higher").value);
+  var zeroPadding = document.getElementById("zeroPadding").checked;
+  
+  var result = "";
+  for (var i = num_lower; i <= num_higher; i++) {
+    var number = zeroPadding ? String(i).padStart(String(num_higher).length, '0') : i;
+    result += prefix + number + postfix + "\n";
+  }
+  
+  document.getElementById("result").value = result;
+}
+</script>
+
+</body>
+</html>

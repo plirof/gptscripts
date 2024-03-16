@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+
+changes
+-240313b -v02 initial version
+-->	
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Sequence Generator</title>
+</head>
+<body>
+    <h2>Number Sequence Generator</h2>
+    <label for="sentence">Enter a sentence:</label><br>
+    <input type="text" id="sentence" name="sentence" value="[x]"><br><br>
+    <label for="num_lower">Lower bound:</label><br>
+    <input type="number" id="num_lower" name="num_lower" value="1"><br><br>
+    <label for="num_higher">Higher bound:</label><br>
+    <input type="number" id="num_higher" name="num_higher" value="15" ><br><br>
+    <input type="checkbox" id="zeroes" name="zeroes">
+    <label for="zeroes">Add leading zeroes</label><br><br>
+    <button onclick="generateSequence()">Generate Sequence</button><br><br>
+    <textarea id="result" rows="10" cols="50"></textarea>
+    
+    <script>
+        function generateSequence() {
+            let sentence = document.getElementById("sentence").value;
+            let num_lower = parseInt(document.getElementById("num_lower").value);
+            let num_higher = parseInt(document.getElementById("num_higher").value);
+            let addZeroes = document.getElementById("zeroes").checked;
+            let result = "";
+            
+            for (let i = num_lower; i <= num_higher; i++) {
+                let num = addZeroes ? String(i).padStart(String(num_higher).length, '0') : i;
+                //let entry = sentence.replace("[x]", num); //replace only fitst instance
+                let entry = sentence.replace(/\[x\]/g, num);
+                result += entry + "\n";
+            }
+            
+            document.getElementById("result").value = result;
+        }
+    </script>
+</body>
+</html>

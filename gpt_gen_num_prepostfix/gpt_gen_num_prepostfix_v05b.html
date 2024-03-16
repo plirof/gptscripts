@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+changes:
+v240314b v05b 
+    -->
+    <title>Number Sequence Generator</title>
+</head>
+<body>
+    <label for="sentence">Enter sentence:</label>
+    <input type="text" id="sentence" name="sentence" value="test[x]eeeee[entry]another[x]"><br><br>
+    
+    <label for="num_lower">Lower Number:</label>
+    <input type="number" id="num_lower" name="num_lower" value=1 ><br><br>
+
+    <label for="num_higher">Higher Number:</label>
+    <input type="number" id="num_higher" name="num_higher" value=15 ><br><br>
+
+    <label for="zero_padding">Zero Padding:</label>
+    <input type="checkbox" id="zero_padding" name="zero_padding"><br><br>
+
+    <button onclick="generateSequence()">Generate Sequence</button><br><br>
+
+    <textarea id="result" rows="10" cols="50"></textarea>
+
+    <script>
+        function generateSequence() {
+            var sentence = document.getElementById('sentence').value;
+            var num_lower = parseInt(document.getElementById('num_lower').value);
+            var num_higher = parseInt(document.getElementById('num_higher').value);
+            var zero_padding = document.getElementById('zero_padding').checked;
+            var result = '';
+            //let lineIndex = 0;
+
+            for (var i = num_lower; i <= num_higher; i++) {
+                (function(i) {
+                    var num = zero_padding ? String(i).padStart(String(num_higher).length, '0') : i;
+                    var entry = sentence.replace(/\[x\]/g, num);
+                    //console.log("entry=" + entry + "   num=" + num);
+
+                    if (entry.includes('[entry]')) {
+                        fetch('entries.txt').then(response => response.text()).then(text => {
+                            var lines = text.split('\n');
+                            //console.log("entry222222222=" + entry + "   num=" + num + "   i=" + i);
+                            var entryWithEntries = entry.replace(/\[entry\]/g, lines[i-1] || ''); 
+                            console.log(lines);
+                            //console.log("entry3333333=" + entry + "   num=" + num + "   i=" + i);
+                            result += entryWithEntries + '\n';
+                            document.getElementById('result').value = result;
+                        });
+                    } else {
+                        result += entry + '\n';
+                        document.getElementById('result').value = result;
+                    }
+                })(i);
+            }
+        }
+    </script>
+</body>
+</html> 
+<pre>
+``` 
+Hello[x]σδδασδ[x]d[entry]sada
+
+Make sure to create a file named `entries.txt` containing the strings you want to replace `[entry]` in the sentence with.
+
+
+I want a single html page with included javascript that will have a text input named "sentence". 
+Then it will have two more text inputs named num_lower and num_higher. At the bottom will have a submit button and a text area for the output/result .  When I press the submit button I want the script to generate a sequence of numbers between num_lower and num_higher. Then I want in the result textarea to show one entry for each number. Each entry will be the text entered in the "sentence" text input where we will replace all instances of string "[x]" with the current generated number.
+I also want a check box to select if we want the numbers to be prefixed with zeroes so they are always the same character size as the number in input "number_higher" (eg 001,002,...,100). I also want another feature: if in the sentence text we have the string [entry] then the script wil read the file "entries.txt". This file will contain a string in each line. I want each [entry] to be replaced by the string contained in the current line of the file "entries.txt" , then we move to the next line of entries.txt
+
+
+sample entries.txt
+aaaaa
+bbbbb
+ccccc
+ddddd
+eeeee
+
+</pre>
