@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<!--
+v240521 -v005 get current rate from https://corsproxy.io/?https://api.coingate.com/v2/rates/merchant/BTC/EUR
+v240507 - Added online widget
+v240506 - initial version
+
+  -->
+<head>
+  <title>Bitcoin Profit Calculator</title>
+    <style>
+      input[type="text"] {
+        font-size: 24px; /* Change the font size as needed */
+        padding: 10px; /* Increase padding for more space */
+        width: 300px; /* Set the width of the input field */
+      }
+    </style>  
+</head>
+<body>
+  <h1>Bitcoin Profit Calculator (v240506v004 ignoring fees)</h1>
+  <label for="boughtvalueBTCtoEUR">Current BTC to EUR rate :</label>
+  <input type="text" value=63999.22 id="boughtvalueBTCtoEUR">(bought price -set to 0 to calc sale in euro)<br>
+  
+  <label for="ownedBTC">Current amount of BTC you have:</label>
+  <input type="text" value=0.00031398  id="ownedBTC"><br>
+  
+  <label for="targetBTCtoEUR">Target BTC to EUR rate (sell price):</label>
+  <!--<input type="text" value=64082 id="targetBTCtoEUR"><br> -->
+  <input type="text" id="targetBTCtoEUR"><br>
+  
+  <button onclick="calculateProfit()">Calculate Profit</button><br>
+  
+  <p id="result"></p>
+  
+  <hr>Current value: 
+  <div class="cryptohopper-web-widget" data-id="7" data-label_design="3" data-theme="midnight" data-coins="bitcoin" data-numcoins="undefined" data-realtime="on" data-currency="EUR"></div>
+  <script>
+      function calculateProfit() {
+        var boughtvalueBTCtoEUR = parseFloat(document.getElementById('boughtvalueBTCtoEUR').value);
+        var ownedBTC = parseFloat(document.getElementById("ownedBTC").value);
+        var targetBTCtoEUR = parseFloat(document.getElementById('targetBTCtoEUR').value);
+
+        var boughtValueEUR = ownedBTC * boughtvalueBTCtoEUR;
+        var targetValue = ownedBTC * targetBTCtoEUR;
+        var profitInEUR = targetValue - boughtValueEUR;
+        var amountBTCToSell = profitInEUR / targetBTCtoEUR;
+
+        document.getElementById('result').innerHTML = "Current Value: EUR " + boughtValueEUR + "<br>" +
+                                                      "Target Value: EUR " + targetValue + "<br>" +
+                                                      
+                                                      "Profit: EUR " +"<h3>"+ profitInEUR + "</h3><br>" +
+                                                      "Amount of BTC to sell (to earn only profit) : " +"<h3>"+ amountBTCToSell + "</h3><br>";
+      }
+    
+    //  in textbox targetBTCtoEUR remove the comma (from skrill value)
+    document.getElementById('targetBTCtoEUR').addEventListener('input', function(e){
+        let value = e.target.value;
+        let convertedValue = parseFloat(value.replace(',', ''));
+        e.target.value = convertedValue;
+    });  
+  </script>
+  <script src="https://www.cryptohopper.com/widgets/js/script"></script>
+ 
+<!-- ######### TEST GRAB value from cryptohopper and update   -->  
+ <hr>
+<!--
+ NOT WORKING--- Copies anothe number (the static one)<BR>
+ <button onclick="updateValue()">Update Value</button>
+
+
+<script>
+function updateValue() {
+  let btcPrice = document.querySelector('b[data-live-price="bitcoin"]').getAttribute('data-price');
+  
+  document.getElementById('targetBTCtoEUR').value = btcPrice;
+  console.log( btcPrice);
+}
+</script>  
+-->
+<hr>
+  With <label for="EURtoSpendToBuyBTC">Current amount of BTC you have:</label>
+  <input type="text" value=0  id="EURtoSpendToBuyBTC"> you can buy <p id="howmuchbtc"></p><br>
+
+<script>
+// Make an AJAX request to the API endpoint get rate
+fetch('https://corsproxy.io/?https://api.coingate.com/v2/rates/merchant/BTC/EUR')
+  .then(response => response.json())
+  .then(data => {
+      
+      console.log (data);
+    if (isNaN(data)) { // check if variable is not a number
+        data = 64000.01; // assign default value
+    }  
+    document.getElementById('targetBTCtoEUR').value = data;
+  })
+  .catch(error => console.error('Error:', error));
+</script>
+
+<script>
+  var targetBTCtoEUR = document.getElementById("targetBTCtoEUR");
+  const EURtoSpendToBuyBTC = document.getElementById("EURtoSpendToBuyBTC");
+  const howmuchbtc = document.getElementById("howmuchbtc");
+
+  EURtoSpendToBuyBTC.addEventListener("input", function() {
+    const value = parseFloat(EURtoSpendToBuyBTC.value) / parseFloat(targetBTCtoEUR.value);
+    
+    // Check if the calculated value is a valid number
+    if (!isNaN(value)) {
+      howmuchbtc.textContent = value;
+    } else {
+      howmuchbtc.textContent = "Invalid input";
+    }
+  });
+</script>
+
+  
+</body>
+</html>

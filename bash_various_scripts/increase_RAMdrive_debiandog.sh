@@ -1,0 +1,1 @@
+mount -t tmpfs -o "remount,size=80%" /mnt/live/memory/changes

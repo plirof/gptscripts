@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!--
+-250104e - seem to work version v001e
+-
+
+-->
 <html>
 <head>
   <title>Image Zoom with Areas</title>
@@ -20,7 +25,8 @@
 <body>
   <h1>Image Zoom with Areas</h1>
   <div style="position: relative;">
-    <img src="path/to/your/image.jpg" alt="Your Image" usemap="#imageMap">
+    <!--<img id="mainImage" src="path/to/your/image.jpg" alt="Your Image" usemap="#imageMap"> -->
+    <img id="mainImage" src="uploads/image.jpg" alt="Your Image" usemap="#imageMap">
     <div id="zoomedImage" onclick="hideZoomedArea()"></div>
     <div class="area" style="left: 50px; top: 50px; width: 100px; height: 100px;" onclick="zoomArea(50, 50, 100, 100)"></div>
     <div class="area" style="left: 200px; top: 50px; width: 100px; height: 100px;" onclick="zoomArea(200, 50, 100, 100)"></div>
@@ -31,10 +37,11 @@
 
   <script>
     var zoomLevel = 8; // Set the desired zoom level here
+    var zoomedArea = null;
 
     function zoomArea(x, y, width, height) {
       var zoomedImage = document.getElementById("zoomedImage");
-      var originalImage = document.querySelector("img");
+      var mainImage = document.getElementById("mainImage");
 
       zoomedImage.innerHTML = "";
       zoomedImage.style.display = "block";
@@ -52,17 +59,41 @@
       canvas.width = zoomedWidth;
       canvas.height = zoomedHeight;
       var ctx = canvas.getContext("2d");
-      ctx.drawImage(originalImage, x, y, width, height, 0, 0, zoomedWidth, zoomedHeight);
+      ctx.drawImage(mainImage, x, y, width, height, 0, 0, zoomedWidth, zoomedHeight);
 
       zoomedImage.appendChild(canvas);
+
+      // Save the current zoomed area
+      zoomedArea = { x, y, width, height };
     }
-    
+
     function hideZoomedArea() {
       var zoomedImage = document.getElementById("zoomedImage");
       zoomedImage.innerHTML = "";
       zoomedImage.style.display = "none";
       zoomedImage.style.cursor = "pointer";
+
+      // Reset the zoomedArea to null to forget the zoomed area
+      zoomedArea = null;
     }
+
+    // Reload the image every 3 seconds with a timestamp to avoid caching
+    setInterval(function() {
+      var mainImage = document.getElementById("mainImage");
+      console.log("reload image rnd=" + Math.random());
+      // Append a timestamp to the image URL to force reload
+      //mainImage.src = "path/to/your/image.jpg?" + new Date().getTime();
+      //mainImage.src = "uploads/image.jpg?" + new Date().getTime();
+      mainImage.src = "get_latest_pic.php?" + new Date().getTime();
+
+      // Wait for the image to load before applying the zoom again
+      mainImage.onload = function() {
+        // Do not reapply the zoom area if it's null (meaning zoom was hidden)
+        if (zoomedArea) {
+          zoomArea(zoomedArea.x, zoomedArea.y, zoomedArea.width, zoomedArea.height);
+        }
+      };
+    }, 3000);
   </script>
 </body>
 </html>

